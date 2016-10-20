@@ -14,10 +14,13 @@ public interface MessageManager {
    public void disconnect( MessageListener listener );
    
    // send message to message server
-   public void sendMessage( String from, String message );  
+   public void sendMessage( String ID_FROM, String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT );  
    
    // Mensagem de autenticacao
    public void sendAuthMessage(String nick, String pass);
+   
+   //Mensagem de Requisição / Atualização de mensagens
+   public void sendRequestMessage(String message);
 }
 
 

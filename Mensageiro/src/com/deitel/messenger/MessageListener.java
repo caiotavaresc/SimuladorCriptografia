@@ -15,6 +15,9 @@ public interface MessageListener {
    
    // Mensagem de autenticacao
    public void authMessageReceived ( String nick, String pass, InetAddress ip_dest);
+   
+   // Mensagem de requisicao
+   public void requestMessageReceived ( int userId, InetAddress ip_from);
 }
 
 

@@ -104,14 +104,16 @@ public class SocketMessageManager implements MessageManager,
    } // end method disconnect
    
    // send message to server
-   public void sendMessage( String from, String message ) 
+   public void sendMessage( String ID_FROM, String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT ) 
    {
       // if not connected, return immediately
       if ( !connected )
          return;
       
+      String message = ID_FROM + MESSAGE_SEPARATOR + NICK_TO + MESSAGE_SEPARATOR + CRYPTO_TYPE + MESSAGE_SEPARATOR + MSG_TYPE + MESSAGE_SEPARATOR + MSG_TEXT;
+      
       // create and start new SendingThread to deliver message
-      new SendingThread( clientSocket, from, message).start();
+      new SendingThread( clientSocket, ID_FROM, message).start();
    }
 
     //Mensagem de autenticacao
@@ -125,6 +127,16 @@ public class SocketMessageManager implements MessageManager,
        
        //Envia mensagem de autenticaco
        new SendingThread( clientSocket, "AUTH", message).start();
+   }
+   
+   //Mensagem de requisicao de atualizacao
+   public void sendRequestMessage(String message)
+   {
+       if(!connected)
+           return;
+       
+       //Envia mensagem de requisicao de atualizacao
+       new SendingThread(clientSocket, "REQUEST", message).start();
    }
 }
 

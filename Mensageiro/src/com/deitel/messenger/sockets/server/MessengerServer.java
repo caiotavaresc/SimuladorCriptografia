@@ -11,6 +11,8 @@ import java.io.*;
 import com.deitel.messenger.*;
 import com.deitel.messenger.model.*;
 import com.deitel.messenger.sockets.*;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 public class MessengerServer implements MessageListener,
    SocketMessengerConstants {
@@ -54,18 +56,13 @@ public class MessengerServer implements MessageListener,
    } // end method startServer
    
    // when new message is received, broadcast message to clients
-   public void messageReceived( String ID_FROM, String ID_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT ) 
+   public void messageReceived( String ID_FROM, String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT ) 
    {          
-      // create String containing entire message
-      //String completeMessage = from + MESSAGE_SEPARATOR + message;
-      
-      // create and start MulticastSendingThread to broadcast
-      // new messages to all clients
-      // new MulticastSendingThread( 
-      //   completeMessage.getBytes() ).start();
+      // A partir do nick do usuário, descobrir o ID
+       Usuario destinatario = USUARIODAO.usuarioExiste(NICK_TO);
       
       // Ao invés de enviar as mensagens para todos os usuários, nós vamos armazená-las
-      Mensagem msg = new Mensagem(Integer.parseInt(ID_FROM), Integer.parseInt(ID_TO), Integer.parseInt(CRYPTO_TYPE), Integer.parseInt(MSG_TYPE), MSG_TEXT);
+      Mensagem msg = new Mensagem(Integer.parseInt(ID_FROM), destinatario.getUSER_ID(), Integer.parseInt(CRYPTO_TYPE), Integer.parseInt(MSG_TYPE), MSG_TEXT);
       MENSAGEMDAO.adiciona(msg);
        
    }
@@ -86,6 +83,28 @@ public class MessengerServer implements MessageListener,
             
         //Enviar a resposta
         new ResponseSendingThread(mensagemResposta.getBytes(), ip_dest).start();
+    }
+    
+    //Mensagem de requisicao de mensagens de texto
+    public void requestMessageReceived(int userId, InetAddress ip_dest)
+    {
+        
+        //Pegar todas as mensagens pendentes para o usuario
+        List<Mensagem> mensagensUsuario = MENSAGEMDAO.obterMensagensUsuario(userId);
+        
+        //Montar as mensagens da requisicao
+        String mensagem;
+        
+        for(int i = 0; i < mensagensUsuario.size(); i++)
+        {
+            Mensagem msg = mensagensUsuario.get(i);
+            mensagem = msg.getNICK_FROM() + MESSAGE_SEPARATOR + msg.getCRYPTO_TYPE() + MESSAGE_SEPARATOR + msg.getMSG_TYPE() + MESSAGE_SEPARATOR + msg.getMSG_TEXT() + MESSAGE_SEPARATOR + msg.getDataHoraFormatado();
+            
+            //Enviar a resposta
+            new ResponseSendingThread(mensagem.getBytes(), ip_dest).start();
+            
+            MENSAGEMDAO.destroi(msg);
+        }
     }
    
    // start the server

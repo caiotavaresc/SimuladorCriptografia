@@ -165,14 +165,10 @@ public class JanelaLogin extends javax.swing.JFrame {
         {
             //Senao, e porque a autenticacao foi feita com sucesso
             //chamar o ClientGUI
-            ClientGUI clientGUI = new ClientGUI( messageManager );
-            clientGUI.setSize( 450, 600 );
-            clientGUI.setResizable( false );
-            clientGUI.setMessageListener( this.messageListener );
-            clientGUI.setUserId(id);
-            clientGUI.setUserName(jTextField1.getText());
-            clientGUI.setVisible( true );
-            clientGUI.setTitle("RP Messenger");
+            ClientGUI2 clientGUI2 = ClientGUI2.InterfaceUsuario(messageManager);
+            clientGUI2.setMessageListener( this.messageListener );
+            clientGUI2.setUserId(id);
+            clientGUI2.setUserName(jTextField1.getText());
             
             this.setVisible(false);
             JanelaLogin.janelaAtual = null;

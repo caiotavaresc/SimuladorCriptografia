@@ -7,8 +7,6 @@ package com.deitel.messenger.sockets.client;
 // Deitel packages
 import com.deitel.messenger.*;
 import java.net.InetAddress;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 public class Messenger {
    
@@ -38,12 +36,9 @@ public class Messenger {
 class MyMessageListener implements MessageListener {
 
    // when received, display new messages in messageArea
-   public void messageReceived( String ID_FROM, String ID_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT ) 
+   public void messageReceived( String NICK_FROM, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT, String MSG_DTTM ) 
    {
-      // append message using MessageDisplayer and
-      // invokeLater, ensuring thread-safe access messageArea
-      //SwingUtilities.invokeLater( 
-      //   new ClientGUI.MessageDisplayer( ID_FROM, MSG_TEXT ) );
+       ClientGUI2.janelaAtual.TratarMensagemResposta(NICK_FROM, CRYPTO_TYPE, MSG_TYPE, MSG_TEXT, MSG_DTTM);
 
    } // end method messageReceived  
    
@@ -51,6 +46,12 @@ class MyMessageListener implements MessageListener {
    public void authMessageReceived(String id, String response, InetAddress ip_orig)
    {
        JanelaLogin.janelaAtual.tratarResultadoAutenticacao(Integer.parseInt(id), response);
+   }
+   
+   //Mensagem de Autenticação - Não é usado
+   public void requestMessageReceived(int userId, InetAddress ip_orig)
+   {
+       
    }
 
 }  // end MyMessageListener inner class 

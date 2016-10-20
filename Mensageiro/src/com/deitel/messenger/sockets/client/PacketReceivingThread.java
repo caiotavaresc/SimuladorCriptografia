@@ -39,7 +39,7 @@ public class PacketReceivingThread extends Thread
             new DatagramSocket( CLIENT_LISTENING_PORT );
          
          // set 5 second timeout when waiting for new packets
-         responseSocket.setSoTimeout( 5000 );
+         responseSocket.setSoTimeout( 2000 );
       }
       
       // handle exception connecting to multicast address
@@ -57,8 +57,6 @@ public class PacketReceivingThread extends Thread
 
          // create buffer for incoming message
          byte[] buffer = new byte[ MESSAGE_SIZE ];
-
-         System.out.println("Tá rodando");
          
          // create DatagramPacket for incoming message
          DatagramPacket packet = new DatagramPacket( buffer, 
@@ -103,10 +101,10 @@ public class PacketReceivingThread extends Thread
                // send message to MessageListener
                messageListener.messageReceived( 
                   tokenizer.nextToken(),   // ID_FROM
-                  tokenizer.nextToken(),   // ID_TO
                   tokenizer.nextToken(),   // CRYPTO_TYPE
                   tokenizer.nextToken(),   // MSG_TYPE
-                  tokenizer.nextToken());  // MSG_TEXT
+                  tokenizer.nextToken(),   // MSG_TEXT
+                  tokenizer.nextToken());  // MSG_DATETIME
             }
             else
             {

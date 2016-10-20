@@ -81,7 +81,7 @@ public class ReceivingThread extends Thread implements
             // and message body
             StringTokenizer tokenizer = 
                new StringTokenizer( message, MESSAGE_SEPARATOR );
-
+            
             // ignore messages that do not contain a user
             // name and message body               
             if ( tokenizer.countTokens() == 5 ) {
@@ -100,6 +100,7 @@ public class ReceivingThread extends Thread implements
             }
 
             else
+            {
 
                // if disconnect message received, stop listening
                if ( message.equalsIgnoreCase( MESSAGE_SEPARATOR +
@@ -108,14 +109,22 @@ public class ReceivingThread extends Thread implements
                   stopListening();
                }
             
+                String tipoMSG = tokenizer.nextToken();
+                
                // Se a mensagem recebida foi de AUTENTICACAO
-               if(tokenizer.nextToken().equals("AUTH"))
+               if(tipoMSG.equals("AUTH"))
                {                   
                    messageListener.authMessageReceived(tokenizer.nextToken()
                            , tokenizer.nextToken()
                            , clientSocket.getInetAddress());
                }
-
+               
+               //Se a mensagem recebida for de REQUISICAO
+               if(tipoMSG.equals("REQUEST"))
+               {
+                   messageListener.requestMessageReceived(Integer.parseInt(tokenizer.nextToken()), clientSocket.getInetAddress());
+               }
+            }
          }  // end if
 
       } // end while  

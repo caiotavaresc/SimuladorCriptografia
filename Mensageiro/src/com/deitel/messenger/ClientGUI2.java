@@ -5,17 +5,25 @@
  */
 package com.deitel.messenger;
 
+import com.deitel.messenger.sockets.client.PacketSendingRequestThread;
+import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
@@ -30,7 +38,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
      */
     public ClientGUI2() {
         initComponents();
-        this.mapaPaineis = new HashMap<String, JPanel>();
+        this.mapaPaineis = new HashMap<String, List<Component>>();
         
         this.loadContacts();
     }
@@ -212,7 +220,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
             //Se a aba já existir, apenas deixá-la visível
             for(int i = 0; i < PainelAbas.getTabCount(); i++)
             {
-                if(PainelAbas.getTitleAt(i)==textoAba)
+                if(PainelAbas.getTitleAt(i).equals(textoAba))
                 {
                     PainelAbas.setSelectedIndex(i);
                     return;
@@ -220,92 +228,40 @@ public class ClientGUI2 extends javax.swing.JFrame {
                 
             }
             
-            //Abrir uma nova aba para conversar com o novo usuario
-            JPanel adicao = new JPanel();
-            JButton ad_Enviar = new JButton();
-            JTextPane ad_CaixaTexto = new JTextPane();
-            JTextPane ad_Conversa = new JTextPane();
-            JScrollPane ad_ScrollConversa = new JScrollPane();
-            JScrollPane ad_ScrollCaixaTexto = new JScrollPane();
-            JRadioButton ad_Cripto1 = new JRadioButton();
-            JRadioButton ad_Cripto2 = new JRadioButton();
-            JRadioButton ad_Cripto3 = new JRadioButton();
-            ButtonGroup ad_ButtonGroup = new ButtonGroup();
-            
-            ad_CaixaTexto.setAutoscrolls(false);
-            ad_ScrollCaixaTexto.setViewportView(ad_CaixaTexto);
-            
-            ad_Conversa.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-            ad_Conversa.setFocusable(false);
-            ad_ScrollConversa.setViewportView(ad_Conversa);
-            
-            ad_Enviar.setText("Enviar");
-            ad_Enviar.addActionListener(new java.awt.event.ActionListener() 
-            {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    BotaoEnviarActionPerformed(evt);
-                }
-            });
-            
-            ad_ButtonGroup.add(ad_Cripto1);
-            ad_Cripto1.setSelected(true);
-            ad_Cripto1.setText("Sem Criptografia");
-
-            ad_ButtonGroup.add(ad_Cripto2);
-            ad_Cripto2.setText("Chave Simétrica");
-
-            ad_ButtonGroup.add(ad_Cripto3);
-            ad_Cripto3.setText("Chave Assimétrica");
-
-            javax.swing.GroupLayout adicaoLayout = new javax.swing.GroupLayout(adicao);
-            adicao.setLayout(adicaoLayout);
-            
-            adicaoLayout.setHorizontalGroup(
-            adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(adicaoLayout.createSequentialGroup()
-                    .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(ad_ScrollCaixaTexto)
-                        .addGroup(adicaoLayout.createSequentialGroup()
-                            .addComponent(ad_Cripto1)
-                            .addGap(18, 18, 18)
-                            .addComponent(ad_Cripto2)
-                            .addGap(18, 18, 18)
-                            .addComponent(ad_Cripto3)
-                            .addGap(0, 206, Short.MAX_VALUE)))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(ad_Enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addComponent(ad_ScrollConversa)
-            );
-            
-            adicaoLayout.setVerticalGroup(
-                adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicaoLayout.createSequentialGroup()
-                    .addComponent(ad_ScrollConversa, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(ad_Enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(adicaoLayout.createSequentialGroup()
-                            .addComponent(ad_ScrollCaixaTexto, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(ad_Cripto1)
-                                .addComponent(ad_Cripto2)
-                                .addComponent(ad_Cripto3)))))
-            );
-            
-            PainelAbas.add(textoAba, adicao);
+            this.abreNovaAba(textoAba);
             
             //Tentar remover a primeira aba
             PainelAbas.remove(PainelInterior);
             PainelAbas.setSelectedIndex(PainelAbas.getComponentCount()-1);
-            
-            this.mapaPaineis.put(textoAba, adicao);
         }
         
     }//GEN-LAST:event_jList1MouseClicked
 
     private void BotaoEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoEnviarActionPerformed
-        // TODO add your handling code here:
+        // Exibir o texto na página e enviá-lo ao servidor
+        String mensagem;
+        
+        //id from nick_to crypto type msg_type msg_text
+        
+        //Pegar a aba que está ativa
+        String AbaAtiva = PainelAbas.getTitleAt(PainelAbas.getSelectedIndex());
+        
+        //Pegar a instância da caixa de texto da aba ativa na lista e daí pegar a mensagem
+        JTextPane caixaTexto = (JTextPane) this.mapaPaineis.get(AbaAtiva).get(2);
+        String textoMensagem = caixaTexto.getText();
+        
+        //Pegar data e hora atuais
+        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date dttm = new Date();
+        
+        //imputar a mensagem na tela
+        this.appendText(this.userName, "1", fmt.format(dttm), textoMensagem, (JPanel) PainelAbas.getSelectedComponent());
+        
+        //Mandar mensagem
+        messageManager.sendMessage(Integer.toString(this.userId), AbaAtiva, "1", "1", textoMensagem); 
+        
+        //Limpar a aba de conversa
+        caixaTexto.setText("");
     }//GEN-LAST:event_BotaoEnviarActionPerformed
 
     private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
@@ -323,7 +279,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static ClientGUI2 InterfaceUsuario (MessageManager messageManager) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -347,12 +303,14 @@ public class ClientGUI2 extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ClientGUI2().setVisible(true);
-            }
-        });
+        ClientGUI2 retorno = new ClientGUI2();
+        retorno.setMessageManager(messageManager);
+        retorno.setVisible(true);
+        
+        ClientGUI2.janelaAtual = retorno;
+
+        return retorno;
+
     }
     
     public void loadContacts()
@@ -402,5 +360,186 @@ public class ClientGUI2 extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
     
     //Variaveis de controle de pagina
-    private HashMap<String,javax.swing.JPanel> mapaPaineis;
+    public static ClientGUI2 janelaAtual;
+    private HashMap<String,List<Component>> mapaPaineis;
+    private String userName;
+    private int userId;
+    private MessageListener messageListener;
+    private MessageManager messageManager;
+    private PacketSendingRequestThread atualizacao;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+        
+        this.atualizacao.setUserId(userId);
+        
+        //Startar a thread de atualizacao
+        this.atualizacao.start();
+    }
+
+    public MessageListener getMessageListener() {
+        return messageListener;
+    }
+
+    public void setMessageListener(MessageListener messageListener) {
+        this.messageListener = messageListener;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+
+    public void setMessageManager(MessageManager messageManager) {
+        this.messageManager = messageManager;
+        
+        //Cria a thread de atualizacao
+        this.atualizacao = new PacketSendingRequestThread(this.messageManager);
+    }
+    
+    public void TratarMensagemResposta(String NICK_FROM, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT, String MSG_DTTM)
+    {
+        //Tipo de Mensagem
+        if(MSG_TYPE.equals("1"))
+        {
+            //Mensagem comum
+            List listaDadosPaineis = mapaPaineis.get(NICK_FROM);
+            JPanel PainelConversa;
+            
+            if(listaDadosPaineis == null)
+            {
+                //Abrir uma nova aba para o id em questão
+                this.abreNovaAba(NICK_FROM);
+                
+                //Pegar de novo o painel
+                listaDadosPaineis = mapaPaineis.get(NICK_FROM);
+            }
+            
+            PainelConversa = (JPanel) listaDadosPaineis.get(0);
+            
+            //Colocar a mensagem na janela que já existe
+            this.appendText(NICK_FROM, CRYPTO_TYPE, MSG_DTTM, MSG_TEXT, PainelConversa);
+
+            //Selectionar aba
+            PainelAbas.remove(PainelInterior);
+            PainelAbas.setSelectedComponent(PainelConversa);
+                
+        }
+        else
+        {
+            //Acordo de chaves
+        }
+    }
+    
+    private void appendText(String NICK_FROM, String CRYPTO_TYPE, String MSG_DTTM, String MSG_TEXT, JPanel Painel)
+    {
+        //Pegar TextArea da conversa
+        JTextPane conversa;
+        
+        //Se o NICK_FROM sou eu, logo eu estou mandando uma mensagem na conversa ativa
+        if(NICK_FROM == this.userName)
+             conversa = (JTextPane) mapaPaineis.get(PainelAbas.getTitleAt(PainelAbas.getSelectedIndex())).get(1);
+        else
+            conversa = (JTextPane) mapaPaineis.get(NICK_FROM).get(1);
+        
+        String mensagemPreparada;
+        mensagemPreparada = NICK_FROM + " disse em " + MSG_DTTM + "\r\n" + MSG_TEXT + "\r\n\r\n";
+        
+        conversa.setText(conversa.getText() + mensagemPreparada);
+    }
+    
+    private void abreNovaAba(String textoAba)
+    {
+        //Abrir uma nova aba para conversar com o novo usuario
+        JPanel adicao = new JPanel();
+        JButton ad_Enviar = new JButton();
+        JTextPane ad_CaixaTexto = new JTextPane();
+        JTextPane ad_Conversa = new JTextPane();
+        JScrollPane ad_ScrollConversa = new JScrollPane();
+        JScrollPane ad_ScrollCaixaTexto = new JScrollPane();
+        JRadioButton ad_Cripto1 = new JRadioButton();
+        JRadioButton ad_Cripto2 = new JRadioButton();
+        JRadioButton ad_Cripto3 = new JRadioButton();
+        ButtonGroup ad_ButtonGroup = new ButtonGroup();
+
+        ad_CaixaTexto.setAutoscrolls(false);
+        ad_ScrollCaixaTexto.setViewportView(ad_CaixaTexto);
+
+        ad_Conversa.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        ad_Conversa.setFocusable(false);
+        ad_ScrollConversa.setViewportView(ad_Conversa);
+
+        ad_Enviar.setText("Enviar");
+        ad_Enviar.addActionListener(new java.awt.event.ActionListener() 
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotaoEnviarActionPerformed(evt);
+            }
+        });
+
+        ad_ButtonGroup.add(ad_Cripto1);
+        ad_Cripto1.setSelected(true);
+        ad_Cripto1.setText("Sem Criptografia");
+
+        ad_ButtonGroup.add(ad_Cripto2);
+        ad_Cripto2.setText("Chave Simétrica");
+
+        ad_ButtonGroup.add(ad_Cripto3);
+        ad_Cripto3.setText("Chave Assimétrica");
+
+        javax.swing.GroupLayout adicaoLayout = new javax.swing.GroupLayout(adicao);
+        adicao.setLayout(adicaoLayout);
+
+        adicaoLayout.setHorizontalGroup(
+        adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(adicaoLayout.createSequentialGroup()
+                .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ad_ScrollCaixaTexto)
+                    .addGroup(adicaoLayout.createSequentialGroup()
+                        .addComponent(ad_Cripto1)
+                        .addGap(18, 18, 18)
+                        .addComponent(ad_Cripto2)
+                        .addGap(18, 18, 18)
+                        .addComponent(ad_Cripto3)
+                        .addGap(0, 206, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ad_Enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(ad_ScrollConversa)
+        );
+
+        adicaoLayout.setVerticalGroup(
+            adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicaoLayout.createSequentialGroup()
+                .addComponent(ad_ScrollConversa, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(ad_Enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(adicaoLayout.createSequentialGroup()
+                        .addComponent(ad_ScrollCaixaTexto, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(ad_Cripto1)
+                            .addComponent(ad_Cripto2)
+                            .addComponent(ad_Cripto3)))))
+        );
+
+        List<Component> listaDados = new ArrayList<Component>();
+        listaDados.add(adicao);
+        listaDados.add(ad_Conversa);
+        listaDados.add(ad_CaixaTexto);
+        
+        PainelAbas.add(textoAba, adicao);
+        mapaPaineis.put(textoAba, listaDados);
+    }
 }

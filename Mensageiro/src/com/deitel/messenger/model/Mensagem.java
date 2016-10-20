@@ -1,17 +1,32 @@
 package com.deitel.messenger.model;
 
+import java.sql.Date;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class Mensagem {
     
     private int ID_MSG;
     private int ID_FROM;
+    private String NICK_FROM;
     private int ID_TO;
     private int CRYPTO_TYPE;
     private int MSG_TYPE;
     private String MSG_TEXT;
-    private Calendar MSG_DATETIME;
+    private Date MSG_DATETIME;
+    private String DataHoraFormatado;
     
+    public Mensagem(int iD_MSG, int iD_FROM, int iD_TO, int cRYPTO_TYPE, int mSG_TYPE, String mSG_TEXT, Date dataHoraMsg)
+    {
+        this.ID_MSG = iD_MSG;
+        this.ID_FROM = iD_FROM;
+        this.ID_TO = iD_TO;
+        this.CRYPTO_TYPE = cRYPTO_TYPE;
+        this.MSG_TYPE = mSG_TYPE;
+        this.MSG_TEXT = mSG_TEXT;
+        this.MSG_DATETIME = dataHoraMsg;
+    }
+
     public Mensagem(int iD_FROM, int iD_TO, int cRYPTO_TYPE, int mSG_TYPE, String mSG_TEXT)
     {
         this.ID_FROM = iD_FROM;
@@ -20,7 +35,7 @@ public class Mensagem {
         this.MSG_TYPE = mSG_TYPE;
         this.MSG_TEXT = mSG_TEXT;
     }
-
+    
     public int getID_MSG() {
         return ID_MSG;
     }
@@ -65,12 +80,28 @@ public class Mensagem {
         this.MSG_TEXT = MSG_TEXT;
     }
 
-    public Calendar getMSG_DATETIME() {
+    public Date getMSG_DATETIME() {
         return MSG_DATETIME;
     }
 
-    public void setMSG_DATETIME(Calendar MSG_DATETIME) {
+    public void setMSG_DATETIME(Date MSG_DATETIME) {
         this.MSG_DATETIME = MSG_DATETIME;
+    }
+
+    public String getNICK_FROM() {
+        return NICK_FROM;
+    }
+
+    public void setNICK_FROM(String NICK_FROM) {
+        this.NICK_FROM = NICK_FROM;
+    }
+
+    public String getDataHoraFormatado() {
+        return DataHoraFormatado;
+    }
+
+    public void setDataHoraFormatado(String DataHoraFormatado) {
+        this.DataHoraFormatado = DataHoraFormatado;
     }
 
 }
