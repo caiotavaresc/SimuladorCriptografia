@@ -5,7 +5,7 @@
  */
 package com.deitel.messenger;
 
-import com.deitel.messenger.keys.Asymmetric_RSA;
+import com.deitel.messenger.keys.*;
 import com.deitel.messenger.sockets.client.PacketSendingRequestThread;
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -13,22 +13,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.security.PublicKey;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.swing.ButtonGroup;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
+import java.util.*;
+import javax.swing.*;
 
 public class ClientGUI2 extends javax.swing.JFrame {
 
@@ -85,27 +71,12 @@ public class ClientGUI2 extends javax.swing.JFrame {
         buttonGroup1.add(Cripto1);
         Cripto1.setSelected(true);
         Cripto1.setText("Sem Criptografia");
-        Cripto1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Cripto1ActionPerformed(evt);
-            }
-        });
 
         buttonGroup1.add(Cripto2);
         Cripto2.setText("Chave Simétrica");
-        Cripto2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Cripto2ActionPerformed(evt);
-            }
-        });
 
         buttonGroup1.add(Cripto3);
         Cripto3.setText("Chave Assimétrica");
-        Cripto3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Cripto3ActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout PainelInteriorLayout = new javax.swing.GroupLayout(PainelInterior);
         PainelInterior.setLayout(PainelInteriorLayout);
@@ -158,11 +129,6 @@ public class ClientGUI2 extends javax.swing.JFrame {
         jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jList1MouseClicked(evt);
-            }
-        });
-        jList1.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-                jList1ValueChanged(evt);
             }
         });
         jScrollPane1.setViewportView(jList1);
@@ -240,150 +206,43 @@ public class ClientGUI2 extends javax.swing.JFrame {
     }//GEN-LAST:event_jList1MouseClicked
 
     private void BotaoEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotaoEnviarActionPerformed
-        // Exibir o texto na página e enviá-lo ao servidor
-        String mensagem;
+        // Enviar o texto da caixa de texto apropriada para o servidor
         List<Component> dadosAbaAtiva;
         int cryptoType = 1;
-        
-        //id from nick_to crypto type msg_type msg_text
         
         //Pegar a aba que está ativa
         String AbaAtiva = PainelAbas.getTitleAt(PainelAbas.getSelectedIndex());
         
         //Pegar a instância da caixa de texto da aba ativa na lista e daí pegar a mensagem
         dadosAbaAtiva = this.mapaPaineis.get(AbaAtiva);
+        
         JTextPane caixaTexto = (JTextPane) dadosAbaAtiva.get(2);
         String textoMensagem = caixaTexto.getText();
-        byte[] textoCriptografado;
-        String textoMensagemCripto = "";
-        String textoMensagemCriptoView = "";
-        
-        //Pegar data e hora atuais
-        SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date dttm = new Date();
         
         //Tratar criptografia
         if(((JRadioButton) dadosAbaAtiva.get(3)).isSelected())
         {
             //Sem criptografia
-            //O texto da mensagem não sofre alteração, nenhuma mensagem é mandada antes - As ações ocorrem abaixo
-            cryptoType = 1;
-            textoMensagemCripto = textoMensagem;
+            //O texto da mensagem não sofre alteração, nenhuma mensagem é mandada antes - As ações ocorrem na classe
+            NoCrypt.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
         }
         
         if(((JRadioButton) dadosAbaAtiva.get(4)).isSelected())
         {
             //Criptografia de Chave Simétrica
-            //Se a chave da instância for null, gerar uma chave para criptografar a mensagem e enviá-la ao destinatário
-            cryptoType = 2;
-            
-            if(this.chaveSimetrica == null)
-            {
-                Random r = new Random();
-                
-                //gerar uma chave de 256 bits -> 32 caracteres
-                char[] chave = new char[16];
-                int num;
-                
-                for(int i = 0; i < 16; i++)
-                {
-                    num = r.nextInt(16);
-                    chave[i] = hexa[num];
-                }
-                
-                this.chaveSimetrica = String.valueOf(chave);
-                
-                //Colocar na janela a mensagem de que a chave foi gerada e enviada
-                dttm = new Date();
-                this.appendKeyText(this.userName, cryptoType, fmt.format(dttm), (JPanel) PainelAbas.getSelectedComponent());
-                
-                //Enviar a chave para o destinatário
-                messageManager.sendMessage(Integer.toString(this.userId), AbaAtiva, String.valueOf(cryptoType), "2", this.chaveSimetrica);
-
-            }
-            
-            try 
-            {
-                //Criptografar agora a mensagem em AES com a chave selecionada
-                textoMensagemCripto = Arrays.toString(ClientGUI2.ChaveSimetricaEncrypt(textoMensagem, this.chaveSimetrica));
-            }
-            catch (Exception ex) 
-            {
-                System.out.println(ex);
-            }
+            Symmetric_AES.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
         }
         
         //Criptorafia de chave assimétrica
         if(((JRadioButton) dadosAbaAtiva.get(5)).isSelected())
         {
             //Criptografia de chave assimétrica
-            cryptoType = 3;
-            
-            //Verificar se existe chave pública para o contato em questão
-            PublicKey chavePublicaUser = Asymmetric_RSA.obterChaveContato(AbaAtiva);
-            boolean first = true;
-            
-            while(chavePublicaUser == null)
-            {
-                System.out.println("TáNoWhile");
-                
-                //Se não houver chave pública, solicitar ao servidor
-                messageManager.sendRSAPublicKeyReq(AbaAtiva);
-
-                //Exibir na tela a mensagem: Solicitando chave pública ao servidor
-                if(first)
-                {
-                    this.appendInformText("Solicitando chave pública do destinatário ao servidor");
-                    first = false;
-                }
-
-                //Dormir um segundo para dar tempo de a mensagem chegar
-                try{
-                    Thread.sleep(1000);
-                }
-                catch(Exception e){
-                    System.out.println(e);
-                }
-                
-                chavePublicaUser = Asymmetric_RSA.obterChaveContato(AbaAtiva);
-                
-                //Quando obter, escrever a chave na tela
-                if(chavePublicaUser != null)
-                    this.appendInformText("Chave Pública recebida: \r\n" + chavePublicaUser.toString());
-            }
-            
-            //Criptografar o texto
-            textoCriptografado = Asymmetric_RSA.criptografa(textoMensagem, chavePublicaUser);
-            textoMensagemCripto = Arrays.toString(textoCriptografado);
-            textoMensagemCriptoView = String.valueOf(textoCriptografado);
+            Asymmetric_RSA.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
         }
-        
-        //imputar a mensagem na tela
-        dttm = new Date();
-        this.appendText(this.userName, cryptoType, fmt.format(dttm), textoMensagem, textoMensagemCripto, (JPanel) PainelAbas.getSelectedComponent());
-        
-        //Mandar mensagem
-        messageManager.sendMessage(Integer.toString(this.userId), AbaAtiva, String.valueOf(cryptoType), "1", textoMensagemCripto); 
-        
+
         //Limpar a aba de conversa
         caixaTexto.setText("");
     }//GEN-LAST:event_BotaoEnviarActionPerformed
-
-    private void jList1ValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jList1ValueChanged
-
-    }//GEN-LAST:event_jList1ValueChanged
-
-    private void Cripto1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Cripto1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_Cripto1ActionPerformed
-
-    private void Cripto3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Cripto3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_Cripto3ActionPerformed
-
-    private void Cripto2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Cripto2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_Cripto2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -476,9 +335,6 @@ public class ClientGUI2 extends javax.swing.JFrame {
     private MessageListener messageListener;
     private MessageManager messageManager;
     private PacketSendingRequestThread atualizacao;
-    String chaveSimetrica;
-    private final static char[] hexa = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-    private final static String IV = "AAAAAAAAAAAAAAAA";
 
     public String getUserName() {
         return userName;
@@ -523,142 +379,51 @@ public class ClientGUI2 extends javax.swing.JFrame {
         this.atualizacao = new PacketSendingRequestThread(this.messageManager);
     }
     
-    public void TratarMensagemResposta(String NICK_FROM, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT, String MSG_DTTM)
+    //Método que escreve o texto na aba apropriada
+    public void appendText(String NICK_FROM, String MENSAGEM)
     {
-        //Mensagem comum
-        List listaDadosPaineis = mapaPaineis.get(NICK_FROM);
-        JPanel PainelConversa;
-
-        if(listaDadosPaineis == null)
+        //Painel de texto onde a mensagem será escrita
+        JTextPane conversa;
+        List listaDadosPaineis;
+        
+        //Se o NICK_FROM sou eu, o texto é escrito na aba atual
+        if(NICK_FROM.equals(this.userName))
         {
-            //Abrir uma nova aba para o id em questão
-            this.abreNovaAba(NICK_FROM);
-
-            //Pegar de novo o painel
+            conversa = (JTextPane) mapaPaineis.get(PainelAbas.getTitleAt(PainelAbas.getSelectedIndex())).get(1);
+        }
+        else
+        {
+            //Caso contrário, encontrar/criar a aba apropriada
+            
             listaDadosPaineis = mapaPaineis.get(NICK_FROM);
-        }
-
-        PainelConversa = (JPanel) listaDadosPaineis.get(0);
-        
-        //Tipo de Mensagem
-        if(MSG_TYPE.equals("1"))
-        {   
-            //Pegar o tipo de criptografia
-            String DECRYPTED_TEXT = "";
-            
-            //Sem criptografia
-            if(CRYPTO_TYPE.equals("1"))
-                DECRYPTED_TEXT = MSG_TEXT;
-            
-            if(CRYPTO_TYPE.equals("2"))
+            if(listaDadosPaineis == null)
             {
-                try 
-                {
-                    if(this.chaveSimetrica == null)
-                    {
-                        Exception e = new Exception("Você recebeu uma mensagem, porém não possui a chave necessária para desencriptá-la");
-                        throw(e);
-                    }
-                    
-                    DECRYPTED_TEXT = ClientGUI2.ChaveSimetricaDecrypt(ClientGUI2.converteStringParaArrayDeBytes(MSG_TEXT), this.chaveSimetrica);
-                }
-                catch (Exception ex) 
-                {
-                    System.out.println("Exceção: " + ex);
-                }
+                //Abrir uma nova aba para o id em questão
+                this.abreNovaAba(NICK_FROM);
+
+                //Pegar de novo o painel
+                listaDadosPaineis = mapaPaineis.get(NICK_FROM);
             }
             
-            if(CRYPTO_TYPE.equals("3"))
-            {
-                DECRYPTED_TEXT = Asymmetric_RSA.decriptografa(ClientGUI2.converteStringParaArrayDeBytes(MSG_TEXT), Asymmetric_RSA.CHAVE_PRIVADA);
-            }
+            //Colocar a aba em questão em foco
+            PainelAbas.setSelectedComponent((Component) listaDadosPaineis.get(0));
             
-            //Colocar a mensagem na janela que já existe
-            this.appendText(NICK_FROM, Integer.parseInt(CRYPTO_TYPE), MSG_DTTM, DECRYPTED_TEXT, MSG_TEXT, PainelConversa);
-
-            //Selectionar aba
-            PainelAbas.remove(PainelInterior);
-            PainelAbas.setSelectedComponent(PainelConversa);
-                
+            conversa = (JTextPane) listaDadosPaineis.get(1);
         }
-        else
-        {
-            //Acordo de chaves
-            
-            //Guardar a chave recebida
-            this.chaveSimetrica = MSG_TEXT;
-            
-            //Escrever na saída que a chave foi recebida
-            this.appendKeyText(NICK_FROM, Integer.valueOf(CRYPTO_TYPE), MSG_DTTM, PainelConversa);
-        }
+        
+        conversa.setText(conversa.getText() + MENSAGEM);
     }
     
-    private void appendText(String NICK_FROM, int CRYPTO_TYPE, String MSG_DTTM, String MSG_TEXT, String CIPHER_TEXT, JPanel Painel)
+    //Método redirecionador para envio de mensagens
+    public static void sendMessage(String ID_FROM, String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT)
     {
-        //Pegar TextArea da conversa
-        JTextPane conversa;
-        
-        //Se o NICK_FROM sou eu, logo eu estou mandando uma mensagem na conversa ativa
-        if(NICK_FROM == this.userName)
-             conversa = (JTextPane) mapaPaineis.get(PainelAbas.getTitleAt(PainelAbas.getSelectedIndex())).get(1);
-        else
-            conversa = (JTextPane) mapaPaineis.get(NICK_FROM).get(1);
-        
-        String mensagemPreparada = "";
-        switch(CRYPTO_TYPE)
-        {
-            case 1:
-                mensagemPreparada = "Tipo de Criptografia: Nenhuma\r\n" + NICK_FROM + " disse em " + MSG_DTTM + "\r\n" + MSG_TEXT + "\r\n\r\n";
-                break;
-            case 2:
-                mensagemPreparada = "Tipo de Criptografia: Chave Simétrica\r\n" + NICK_FROM + " disse em " + MSG_DTTM + "\r\nTexto cifrado: " + CIPHER_TEXT + "\r\nTexto decodificado: " + MSG_TEXT + "\r\n\r\n";
-                break;
-            case 3:
-                mensagemPreparada = "Tipo de Criptografia: Chave Assimétrica\r\n" + NICK_FROM + " disse em " + MSG_DTTM + "\r\nTexto cifrado: " + CIPHER_TEXT + "\r\nTexto decodificado: " + MSG_TEXT + "\r\n\r\n";
-                break;
-        }
-        
-        conversa.setText(conversa.getText() + mensagemPreparada);
+        janelaAtual.messageManager.sendMessage(ID_FROM, NICK_TO, CRYPTO_TYPE, MSG_TYPE, MSG_TEXT);
     }
     
-    //Mensagem qaundo é ENVIADO ou RECEBIDO um acordo de chaves
-    private void appendKeyText(String NICK_FROM, int CRYPTO_TYPE, String MSG_DTTM, JPanel Painel)
+    //Método redirecionador para envio de mensagens
+    public static void sendRSAPublicKeyReq(String NICK_TO)
     {
-        //Pegar TextArea da conversa
-        JTextPane conversa;
-        
-        //Se o NICK_FROM sou eu, logo eu estou mandando uma mensagem na conversa ativa
-        if(NICK_FROM == this.userName)
-             conversa = (JTextPane) mapaPaineis.get(PainelAbas.getTitleAt(PainelAbas.getSelectedIndex())).get(1);
-        else
-            conversa = (JTextPane) mapaPaineis.get(NICK_FROM).get(1);
-        
-        String mensagemPreparada = "";
-        
-        switch(CRYPTO_TYPE)
-        {
-            case 2:
-            //Criptografia de chave simétrica
-            mensagemPreparada =  "Criptografia de Chave Simétrica\r\n" 
-                    + NICK_FROM + " gerou a chave AES em " 
-                    + MSG_DTTM + "\r\n" + this.chaveSimetrica 
-                    + "\r\nChave enviada pelo canal de rede"
-                    +"\r\n\r\n";
-            break;
-        }
-        
-        conversa.setText(conversa.getText() + mensagemPreparada);
-    }
-    
-    //Método que escreve uma string qualquer na aba ativa
-    private void appendInformText(String texto)
-    {
-        JTextPane conversa;
-        
-        conversa = (JTextPane) mapaPaineis.get(PainelAbas.getTitleAt(PainelAbas.getSelectedIndex())).get(1);
-        
-        texto = texto + "\r\n\r\n";
-        conversa.setText(conversa.getText() + texto);
+        janelaAtual.messageManager.sendRSAPublicKeyReq(NICK_TO);
     }
     
     private void abreNovaAba(String textoAba)
@@ -746,38 +511,8 @@ public class ClientGUI2 extends javax.swing.JFrame {
         
         PainelAbas.add(textoAba, adicao);
         mapaPaineis.put(textoAba, listaDados);
-    }
-    
-    //Métodos de encriptação e decriptação com AES - Chave Simétrica
-    
-    public static byte[] ChaveSimetricaEncrypt(String textopuro, String chaveencriptacao) throws Exception {
-        Cipher encripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-        SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), "AES");
-        encripta.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
-        return encripta.doFinal(textopuro.getBytes("UTF-8"));
-    }
-   
-    public static String ChaveSimetricaDecrypt(byte[] textoencriptado, String chaveencriptacao) throws Exception{
-            Cipher decripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-            SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), "AES");
-            decripta.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
-            return new String(decripta.doFinal(textoencriptado),"UTF-8");
-    }
-         
-    public static byte[] converteStringParaArrayDeBytes(String texto)
-    {
-        String[] quebra = texto.split(",");
         
-        //O primeiro e o último elementos têm um colchete - remover
-        quebra[0] = quebra[0].substring(1);
-        quebra[quebra.length - 1] = quebra[quebra.length - 1].substring(1, quebra[quebra.length - 1].length() - 1);
-        
-        byte[] retorno = new byte[quebra.length];
-        
-        int i;
-        for(i = 0; i < retorno.length; i++)
-            retorno[i] = Byte.valueOf(quebra[i].trim());
-        
-        return retorno;
-    }
+        //Tentar remover a primeira aba (vazia)
+        PainelAbas.remove(PainelInterior);
+    }        
 }

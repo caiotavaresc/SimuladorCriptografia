@@ -6,10 +6,8 @@ package com.deitel.messenger.sockets.client;
 
 // Deitel packages
 import com.deitel.messenger.*;
-import com.deitel.messenger.keys.Asymmetric_RSA;
+import com.deitel.messenger.keys.*;
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.List;
 
 public class Messenger {
    
@@ -41,13 +39,40 @@ class MyMessageListener implements MessageListener {
    // when received, display new messages in messageArea
    public void messageReceived( String NICK_FROM, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT, String MSG_DTTM ) 
    {
-       ClientGUI2.janelaAtual.TratarMensagemResposta(NICK_FROM, CRYPTO_TYPE, MSG_TYPE, MSG_TEXT, MSG_DTTM);
+       int iCRYPTO_TYPE = Integer.valueOf(CRYPTO_TYPE);
+       
+       //Se a mensagem for um acordo de chaves, chamar a classe Symmetric_AES pra tratar
+       if(MSG_TYPE.equals("2"))
+       {
+            Symmetric_AES.chaveSimetricaRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
+            return;
+       }
+               
+       //Senão, vai depender do tipo de mensagem
+       switch(iCRYPTO_TYPE)
+       {
+           case 1:
+               NoCrypt.mensagemRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
+               break;
+               
+           case 2:
+               Symmetric_AES.mensagemRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
+               break;
+               
+           case 3: 
+               Asymmetric_RSA.mensagemRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
+               break;
+               
+           case 4:
+               break;
+       }
 
    } // end method messageReceived  
    
    //Resposta da mensagem de autenticacao
    public void authMessageReceived(String id, String response, InetAddress ip_orig)
    {
+       //A janela de login trata o resultado da autenticação
        JanelaLogin.janelaAtual.tratarResultadoAutenticacao(Integer.parseInt(id), response);
    }
    
@@ -57,7 +82,7 @@ class MyMessageListener implements MessageListener {
        
    }
    
-   //Mensagem de Chave Pública Assimétrica
+   //Mensagem de Chave Pública Assimétrica - Não é usado
    public void asymPublicMessageReceived(int userId, String arrayBytes)
    {
        
@@ -73,24 +98,9 @@ class MyMessageListener implements MessageListener {
         par = parContatoChave.split(">>>");
 
         //pegar a chave e transformá-la em array de bytes
-        key = ClientGUI2.converteStringParaArrayDeBytes(par[1]);
+        key = Utils.converteStringParaArrayDeBytes(par[1]);
 
         Asymmetric_RSA.inserirChaveContato(par[0], key);
    }
 
-}  // end MyMessageListener inner class 
-
-/**************************************************************************
- * (C) Copyright 2002 by Deitel & Associates, Inc. and Prentice Hall.     *
- * All Rights Reserved.                                                   *
- *                                                                        *
- * DISCLAIMER: The authors and publisher of this book have used their     *
- * best efforts in preparing the book. These efforts include the          *
- * development, research, and testing of the theories and programs        *
- * to determine their effectiveness. The authors and publisher make       *
- * no warranty of any kind, expressed or implied, with regard to these    *
- * programs or to the documentation contained in these books. The authors *
- * and publisher shall not be liable in any event for incidental or       *
- * consequential damages in connection with, or arising out of, the       *
- * furnishing, performance, or use of these programs.                     *
- *************************************************************************/
+}
