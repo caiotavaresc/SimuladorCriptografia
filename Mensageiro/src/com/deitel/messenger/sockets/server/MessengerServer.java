@@ -106,6 +106,35 @@ public class MessengerServer implements MessageListener,
             MENSAGEMDAO.destroi(msg);
         }
     }
+    
+    //Mensagem contendo a chave pública
+    public void asymPublicMessageReceived(int userId, String arrayBytes)
+    {
+        if(!USUARIODAO.atualizarChavePublica(userId, arrayBytes))
+        {
+            System.out.println("Não foi possível atualizar a chave");
+        }
+    }
+    
+    //Mensagem contendo uma lista de contatos para retornar as chaves públicas
+    public void asymPublicReqReceived(String contato, InetAddress ip_dest)
+    {
+        String nick, mensagemResposta;
+        Usuario user;
+        
+        //Identificador da mensagem de resposta
+        mensagemResposta = "ASYM_PUBLIC_REQ";
+
+        //Pegar os dados do contato (inclusive a chave pública RSA)
+        user = USUARIODAO.usuarioExiste(contato);
+            
+        mensagemResposta = mensagemResposta + MESSAGE_SEPARATOR + contato + MESSAGE_SEPARATOR + user.getPUBLIC_KEY1();
+        
+        System.out.println(mensagemResposta);
+        
+        //Enviar a resposta
+        new ResponseSendingThread(mensagemResposta.getBytes(), ip_dest).start();
+    }
    
    // start the server
    public static void main ( String args[] ) 

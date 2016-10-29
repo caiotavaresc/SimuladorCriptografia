@@ -108,11 +108,20 @@ public class PacketReceivingThread extends Thread
             }
             else
             {
+                String tipoMensagem = tokenizer.nextToken();
+                
                 //Verificar se o pacote recebido e uma resposta de autenticacao
-                if(tokenizer.nextToken().equals("AUTH"))
+                if(tipoMensagem.equals("AUTH"))
                 {                    
                     // Prosseguir com a resposta -> Id do Usuario + Nome, Mensagem, Endereco
                     messageListener.authMessageReceived(tokenizer.nextToken(), tokenizer.nextToken(), responseSocket.getInetAddress());
+                }
+                
+                //Verificar se o pacote recebido é uma resposta contendo as chaves públicas dos contatos
+                if(tipoMensagem.equals("ASYM_PUBLIC_REQ"))
+                {
+                    //Prosseguir com a resposta
+                    messageListener.asymPublicReqReceived(tokenizer.nextToken() + MESSAGE_SEPARATOR + tokenizer.nextToken(), responseSocket.getInetAddress());
                 }
             }
 

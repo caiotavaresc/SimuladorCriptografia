@@ -68,6 +68,8 @@ public class MensagemDAO {
                 msg.setDataHoraFormatado(rs.getString(9));
                 lista.add(msg);
             }
+            
+            stmt.close();
         }
         catch(Exception e)
         {
@@ -88,6 +90,7 @@ public class MensagemDAO {
             stmt.setInt(1, m.getID_MSG());
             
             stmt.execute();
+            stmt.close();
         }
         catch(Exception e)
         {

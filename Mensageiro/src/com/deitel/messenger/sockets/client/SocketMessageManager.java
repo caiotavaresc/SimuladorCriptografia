@@ -138,6 +138,26 @@ public class SocketMessageManager implements MessageManager,
        //Envia mensagem de requisicao de atualizacao
        new SendingThread(clientSocket, "REQUEST", message).start();
    }
+   
+   //Enviar chave pública para o servidor
+   public void sendRSAPublicKeyMessage(int userId, String message)
+   {
+       if(!connected)
+           return;
+       
+       //Envia mensagem com a chave pública RSA
+       new SendingThread(clientSocket, "ASYM_PUBLIC", "ASYM_PUBLIC" + MESSAGE_SEPARATOR + userId + MESSAGE_SEPARATOR + message).start();
+   }
+   
+   //Solicitar ao servidor as chaves públicas de todos os contatos
+   public void sendRSAPublicKeyReq(String contato)
+   {
+             
+       String mensagem = "ASYM_PUBLIC_REQ" + MESSAGE_SEPARATOR + contato;
+       
+       //Enviar a mensagem de solicitação
+       new SendingThread(clientSocket, "ASYM_PUBLIC_REQ", mensagem).start();
+   }
 }
 
 

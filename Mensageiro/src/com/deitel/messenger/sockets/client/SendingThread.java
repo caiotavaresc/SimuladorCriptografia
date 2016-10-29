@@ -34,11 +34,11 @@ public class SendingThread extends Thread
    public void run() 
    {
       // send message and flush PrintWriter
-      try {     
+      try {
          PrintWriter writer = 
             new PrintWriter( clientSocket.getOutputStream() );
          writer.println( messageToSend );
-         writer.flush();        
+         writer.flush();    
       } 
 
       // handle exception sending message

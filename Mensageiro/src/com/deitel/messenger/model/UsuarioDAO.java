@@ -34,9 +34,11 @@ public class UsuarioDAO {
             
             while(rs.next())
             {
-                Usuario retorno = new Usuario(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getDate(5));
+                Usuario retorno = new Usuario(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getDate(5), rs.getString(6));
                 return retorno;
             }
+            
+            stmt.close();
         }
         catch(Exception e)
         {
@@ -63,6 +65,8 @@ public class UsuarioDAO {
             while(rs.next())
                 if(rs.getString(3).equals(pass))
                     return true;
+            
+            stmt.close();
         }
         catch(Exception e)
         {
@@ -71,6 +75,30 @@ public class UsuarioDAO {
         }
         
         return false;
+    }
+    
+    //Atualizar a chave pública assimétrica do usuário
+    public boolean atualizarChavePublica(int userId, String chavePublicaAssimetrica)
+    {
+        String consulta = "UPDATE USUARIO SET PUBLIC_KEY1 = ? WHERE USER_ID = ?";
+        
+        try
+        {
+            PreparedStatement stmt = conn.prepareStatement(consulta);
+            
+            stmt.setString(1, chavePublicaAssimetrica);
+            stmt.setInt(2, userId);
+            
+            stmt.execute();
+            stmt.close();
+            
+            return true;
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex);
+            return false;
+        }
     }
     
 }

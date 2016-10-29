@@ -7,15 +7,6 @@ import com.deitel.messenger.model.*;
 
 public interface SocketMessengerConstants {
    
-   // address for multicast datagrams
-   public static final String MULTICAST_ADDRESS = "230.0.0.1";
-   
-   // port for listening for multicast datagrams
-   public static final int MULTICAST_LISTENING_PORT = 5555;
-   
-   // port for sending multicast datagrams
-   public static final int MULTICAST_SENDING_PORT = 5554;
-   
    // porta em que o cliente escuta as respostas do servidor
    public static final int CLIENT_LISTENING_PORT = 5555;
    
@@ -29,7 +20,7 @@ public interface SocketMessengerConstants {
    public static final String MESSAGE_SEPARATOR = ">>>";
 
    // message size (in bytes)
-   public static final int MESSAGE_SIZE = 512;
+   public static final int MESSAGE_SIZE = 2048;
    
    // DAO de Mensagem
    public static final MensagemDAO MENSAGEMDAO = new MensagemDAO();

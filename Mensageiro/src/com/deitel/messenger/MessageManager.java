@@ -3,6 +3,8 @@
 // communications with a message server.
 package com.deitel.messenger;
 
+import java.util.Set;
+
 public interface MessageManager {   
    
    // connect to message server and route incoming messages
@@ -21,6 +23,12 @@ public interface MessageManager {
    
    //Mensagem de Requisição / Atualização de mensagens
    public void sendRequestMessage(String message);
+   
+   //Mensagem de envio de chave pública RSA
+   public void sendRSAPublicKeyMessage(int userId, String message);
+   
+   //Mensagem que solicita ao servidor as chaves públicas de todos os contatos
+   public void sendRSAPublicKeyReq(String contato);
 }
 
 

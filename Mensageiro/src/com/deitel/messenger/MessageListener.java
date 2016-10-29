@@ -4,6 +4,7 @@
 package com.deitel.messenger;
 
 import java.net.InetAddress;
+import java.util.List;
 
 public interface MessageListener {
 
@@ -18,6 +19,12 @@ public interface MessageListener {
    
    // Mensagem de requisicao
    public void requestMessageReceived ( int userId, InetAddress ip_from);
+   
+   // Chave assimétrica recebida
+   public void asymPublicMessageReceived( int userId, String arrayBytes);
+   
+   // Chaves públicas dos contatos
+   public void asymPublicReqReceived(String contato, InetAddress ip_dest);
 }
 
 

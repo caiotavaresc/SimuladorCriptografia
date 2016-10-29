@@ -6,7 +6,10 @@ package com.deitel.messenger.sockets.client;
 
 // Deitel packages
 import com.deitel.messenger.*;
+import com.deitel.messenger.keys.Asymmetric_RSA;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.List;
 
 public class Messenger {
    
@@ -52,6 +55,27 @@ class MyMessageListener implements MessageListener {
    public void requestMessageReceived(int userId, InetAddress ip_orig)
    {
        
+   }
+   
+   //Mensagem de Chave Pública Assimétrica
+   public void asymPublicMessageReceived(int userId, String arrayBytes)
+   {
+       
+   }
+   
+   //Mensagem contendo todas as chaves públicas de todos os contatos
+   public void asymPublicReqReceived(String parContatoChave, InetAddress ip_orig)
+   {
+        System.out.println(parContatoChave);
+        String[] par;
+        byte[] key;
+       
+        par = parContatoChave.split(">>>");
+
+        //pegar a chave e transformá-la em array de bytes
+        key = ClientGUI2.converteStringParaArrayDeBytes(par[1]);
+
+        Asymmetric_RSA.inserirChaveContato(par[0], key);
    }
 
 }  // end MyMessageListener inner class 

@@ -11,6 +11,7 @@ public class Usuario {
     private String PASS;
     private String EMAIL;
     private Calendar CREATED_AT;
+    private String PUBLIC_KEY1;
     
     public Usuario()
     {
@@ -25,6 +26,17 @@ public class Usuario {
         this.EMAIL = eMAIL;
         this.CREATED_AT = new GregorianCalendar();
         this.CREATED_AT.setTime(cREATED_AT);
+    }
+    
+    public Usuario(int uSER_ID, String nICK, String pASS, String eMAIL, Date cREATED_AT, String pUBLIC_KEY1)
+    {
+        this.USER_ID = uSER_ID;
+        this.NICK = nICK;
+        this.PASS = pASS;
+        this.EMAIL = eMAIL;
+        this.CREATED_AT = new GregorianCalendar();
+        this.CREATED_AT.setTime(cREATED_AT);
+        this.PUBLIC_KEY1 = pUBLIC_KEY1;
     }
 
     public int getUSER_ID() {
@@ -65,6 +77,14 @@ public class Usuario {
 
     public void setCREATED_AT(Calendar CREATED_AT) {
         this.CREATED_AT = CREATED_AT;
+    }
+
+    public String getPUBLIC_KEY1() {
+        return PUBLIC_KEY1;
+    }
+
+    public void setPUBLIC_KEY1(String PUBLIC_KEY1) {
+        this.PUBLIC_KEY1 = PUBLIC_KEY1;
     }
     
 }

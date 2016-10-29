@@ -12,6 +12,8 @@ import java.util.StringTokenizer;
 // Deitel packages
 import com.deitel.messenger.*;
 import com.deitel.messenger.sockets.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReceivingThread extends Thread implements
    SocketMessengerConstants {
@@ -35,7 +37,7 @@ public class ReceivingThread extends Thread implements
       // set timeout for reading from clientSocket and create
       // BufferedReader for reading incoming messages
       try {         
-         clientSocket.setSoTimeout( 5000 );
+         clientSocket.setSoTimeout( 2000 );
          
          input = new BufferedReader( new InputStreamReader( 
             clientSocket.getInputStream() ) );
@@ -54,16 +56,16 @@ public class ReceivingThread extends Thread implements
       String message;
       
       // listen for messages until stoppped
-      while ( keepListening ) {   
+      while ( keepListening ) {
 
          // read message from BufferedReader
-         try {            
+         try 
+         {
             message = input.readLine();
          }
          
          // handle exception if read times out
          catch ( InterruptedIOException interruptedIOException ) {
-
             // continue to next iteration to keep listening
             continue;
          }
@@ -124,9 +126,25 @@ public class ReceivingThread extends Thread implements
                {
                    messageListener.requestMessageReceived(Integer.parseInt(tokenizer.nextToken()), clientSocket.getInetAddress());
                }
+               
+               //Se a mensagem recebida for de CHAVE PUBLICA RSA
+               if(tipoMSG.equals("ASYM_PUBLIC"))
+               {                   
+                   String idUser = tokenizer.nextToken();
+                   String chave = tokenizer.nextToken();
+                   
+                   //Essa representação do array de bytes será guardada no BD
+                   messageListener.asymPublicMessageReceived(Integer.parseInt(idUser), chave);
+               }
+               
+               //Se a mensagem for uma requisição das chaves públicas dos contatos
+               if(tipoMSG.equals("ASYM_PUBLIC_REQ"))
+               {                   
+                   //Enviar o contato para o listener, para ele enviar a resposta (chave pública do contato)
+                   messageListener.asymPublicReqReceived(tokenizer.nextToken(), clientSocket.getInetAddress());
+               }
             }
          }  // end if
-
       } // end while  
       
       // close BufferedReader (also closes Socket)
