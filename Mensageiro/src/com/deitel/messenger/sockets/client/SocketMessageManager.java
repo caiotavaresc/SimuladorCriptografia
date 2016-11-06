@@ -158,6 +158,18 @@ public class SocketMessageManager implements MessageManager,
        //Enviar a mensagem de solicitação
        new SendingThread(clientSocket, "ASYM_PUBLIC_REQ", mensagem).start();
    }
+   
+   //Criptografia de Ponta-a-Ponta
+   
+   //Iniciar Acordo de Chaves DH
+   public void DHExchange(String mensagem)
+   {
+       
+       //Todas as validações de Acordo de Chaves Diffie Hellmann ocorrem na classe MTProto
+       
+       //Enviar a mensagem
+       new SendingThread(clientSocket, "DH_EXCHANGE", mensagem).start();
+   }
 }
 
 

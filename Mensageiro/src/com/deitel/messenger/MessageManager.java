@@ -29,6 +29,9 @@ public interface MessageManager {
    
    //Mensagem que solicita ao servidor as chaves públicas de todos os contatos
    public void sendRSAPublicKeyReq(String contato);
+   
+   //Tratativa de Acordo de Chaves Diffie Hellmann
+   public void DHExchange(String mensagem);
 }
 
 

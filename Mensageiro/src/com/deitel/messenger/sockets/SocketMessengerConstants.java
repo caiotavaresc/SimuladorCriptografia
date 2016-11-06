@@ -10,6 +10,9 @@ public interface SocketMessengerConstants {
    // porta em que o cliente escuta as respostas do servidor
    public static final int CLIENT_LISTENING_PORT = 5555;
    
+   // porta exclusiva para receber chaves de autenticação do servidor
+   public static final int CLIENT_AUTH_LISTENING_PORT = 5550;
+   
    // port for Socket connections to DeitelMessengerServer
    public static final int SERVER_PORT = 5000;   
    

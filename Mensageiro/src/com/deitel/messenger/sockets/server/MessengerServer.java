@@ -11,7 +11,6 @@ import java.io.*;
 import com.deitel.messenger.*;
 import com.deitel.messenger.model.*;
 import com.deitel.messenger.sockets.*;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MessengerServer implements MessageListener,
@@ -127,13 +126,13 @@ public class MessengerServer implements MessageListener,
 
         //Pegar os dados do contato (inclusive a chave pública RSA)
         user = USUARIODAO.usuarioExiste(contato);
+        
+        System.out.println("Enviou de " + contato);
             
         mensagemResposta = mensagemResposta + MESSAGE_SEPARATOR + contato + MESSAGE_SEPARATOR + user.getPUBLIC_KEY1();
         
-        System.out.println(mensagemResposta);
-        
         //Enviar a resposta
-        new ResponseSendingThread(mensagemResposta.getBytes(), ip_dest).start();
+        new ResponseSendingThread(mensagemResposta.getBytes(), ip_dest, CLIENT_AUTH_LISTENING_PORT).start();
     }
    
    // start the server
@@ -142,19 +141,3 @@ public class MessengerServer implements MessageListener,
       new MessengerServer().startServer();
    }
 }
-
-
-/**************************************************************************
- * (C) Copyright 2002 by Deitel & Associates, Inc. and Prentice Hall.     *
- * All Rights Reserved.                                                   *
- *                                                                        *
- * DISCLAIMER: The authors and publisher of this book have used their     *
- * best efforts in preparing the book. These efforts include the          *
- * development, research, and testing of the theories and programs        *
- * to determine their effectiveness. The authors and publisher make       *
- * no warranty of any kind, expressed or implied, with regard to these    *
- * programs or to the documentation contained in these books. The authors *
- * and publisher shall not be liable in any event for incidental or       *
- * consequential damages in connection with, or arising out of, the       *
- * furnishing, performance, or use of these programs.                     *
- *************************************************************************/

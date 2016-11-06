@@ -134,6 +134,18 @@ public class Asymmetric_RSA {
 
     return cipherText;
   }
+  
+  //Criptografa o texto puro com a MINHA CHAVE PRIVADA
+  public static byte[] criptografaComMinhaChavePrivada(String textoPuro) throws Exception
+  {
+      byte[] cipherText = null;
+      
+      final Cipher cipher = Cipher.getInstance(ALGORITHM);
+      cipher.init(Cipher.ENCRYPT_MODE, CHAVE_PRIVADA);
+      cipherText = cipher.doFinal(textoPuro.getBytes());
+      
+      return cipherText;
+  }
 
   /**
    * Decriptografa o texto puro usando chave privada.
@@ -148,43 +160,21 @@ public class Asymmetric_RSA {
 
     return new String(dectyptedText);
   }
-
-  /**
-   * Testa o Algoritmo
-   */
-  public static void main(String[] args) {
-
-    try {
-
-      // Verifica se já existe um par de chaves, caso contrário gera-se as chaves..
-      if (!verificaSeExisteChavesNoSO()) {
-       // Método responsável por gerar um par de chaves usando o algoritmo RSA e
-       // armazena as chaves nos seus respectivos arquivos.
-        geraChave();
-      }
-
-      final String msgOriginal = "Exemplo de mensagem";
-      ObjectInputStream inputStream = null;
-
-      // Criptografa a Mensagem usando a Chave Pública
-      inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PUBLICA));
-      final PublicKey chavePublica = (PublicKey) inputStream.readObject();
-      final byte[] textoCriptografado = criptografa(msgOriginal, chavePublica);
-
-      // Decriptografa a Mensagem usando a Chave Pirvada
-      inputStream = new ObjectInputStream(new FileInputStream(PATH_CHAVE_PRIVADA));
-      final PrivateKey chavePrivada = (PrivateKey) inputStream.readObject();
-      final String textoPuro = decriptografa(textoCriptografado, chavePrivada);
-
-      // Imprime o texto original, o texto criptografado e 
-      // o texto descriptografado.
-      System.out.println("Mensagem Original: " + msgOriginal);
-      System.out.println("Mensagem Criptografada: " +textoCriptografado.toString());
-      System.out.println("Mensagem Decriptografada: " + textoPuro);
-
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  
+  public static String decriptografaComMinhaChavePrivada(byte[] texto) throws Exception
+  {
+      return Asymmetric_RSA.decriptografa(texto, CHAVE_PRIVADA);
+  }
+  
+  public static String decriptografaComChavePublica(byte[] texto, PublicKey chave) throws Exception
+  {
+      byte[] decryptedText = null;
+      
+      final Cipher cipher = Cipher.getInstance(ALGORITHM);
+      cipher.init(Cipher.DECRYPT_MODE, chave);
+      decryptedText = cipher.doFinal(texto);
+      
+      return new String(decryptedText);
   }
   
   public static void inserirChaveContato(String contato, byte[] chave)
@@ -243,11 +233,43 @@ public class Asymmetric_RSA {
   public static void enviarMensagem(String ID_FROM, String NICK_TO, String MSG_TEXT)
   {
     //Verificar se existe chave pública para o contato em questão
-    PublicKey chavePublicaUser = Asymmetric_RSA.obterChaveContato(NICK_TO);
-    boolean first = true;
+    PublicKey chavePublicaUser = Asymmetric_RSA.obterChaveComServidor(NICK_TO);
     
     Date dttm = new Date();
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    
+    //Preparar a mensagem para o envio
+    String mensagem = "Tipo de Criptografia: Chave Assimétrica - Protocolo RSA\r\n";
+    mensagem = mensagem + "Você escreveu uma mensagem em " + sdf.format(dttm) + "\r\n";
+    
+    try
+    {
+        byte[] textoCriptografado = criptografa(MSG_TEXT, chavePublicaUser);
+        dttm = new Date();
+        
+        //Enviar a mensagem para o servidor
+        ClientGUI2.sendMessage(ID_FROM, NICK_TO, "3", "1", Arrays.toString(textoCriptografado));
+        
+        //Montar a mensagem a ser exibida
+        mensagem = mensagem + "Texto original: " + MSG_TEXT + "\r\n";
+        mensagem = mensagem + "Texto enviado: " + Utils.converteArrayDeBytesParaString(textoCriptografado) + "\r\n\r\n";
+    }
+    catch(Exception e)
+    {
+        mensagem = mensagem + "Não foi possível criptografar sua mensagem\r\n";
+        mensagem = mensagem + "Nada foi enviado\r\n\r\n";
+    }
+    
+    //Exibir a mensagem
+    ClientGUI2.janelaAtual.appendText(NICK_TO, mensagem);
+  }
+  
+  //Método que devolve a chave privada de um usuário
+  public static PublicKey obterChaveComServidor(String NICK_TO)
+  {
+    //Verificar se existe chave pública para o contato em questão
+    PublicKey chavePublicaUser = Asymmetric_RSA.obterChaveContato(NICK_TO);
+    boolean first = true;
 
     //Se não houver chave pública, importar
     while(chavePublicaUser == null)
@@ -277,29 +299,6 @@ public class Asymmetric_RSA {
             ClientGUI2.janelaAtual.appendText(NICK_TO, "Chave Pública recebida: \r\n" + chavePublicaUser.toString() + "\r\n\r\n");
     }
     
-    //Preparar a mensagem para o envio
-    String mensagem = "Tipo de Criptografia: Chave Assimétrica - Protocolo RSA\r\n";
-    mensagem = mensagem + "Você escreveu uma mensagem em " + sdf.format(dttm) + "\r\n";
-    
-    try
-    {
-        byte[] textoCriptografado = criptografa(MSG_TEXT, chavePublicaUser);
-        dttm = new Date();
-        
-        //Enviar a mensagem para o servidor
-        ClientGUI2.sendMessage(ID_FROM, NICK_TO, "3", "1", Arrays.toString(textoCriptografado));
-        
-        //Montar a mensagem a ser exibida
-        mensagem = mensagem + "Texto original: " + MSG_TEXT + "\r\n";
-        mensagem = mensagem + "Texto enviado: " + Utils.converteArrayDeBytesParaString(textoCriptografado) + "\r\n\r\n";
-    }
-    catch(Exception e)
-    {
-        mensagem = mensagem + "Não foi possível criptografar sua mensagem\r\n";
-        mensagem = mensagem + "Nada foi enviado\r\n\r\n";
-    }
-    
-    //Exibir a mensagem
-    ClientGUI2.janelaAtual.appendText(NICK_TO, mensagem);
+    return chavePublicaUser;
   }
 }

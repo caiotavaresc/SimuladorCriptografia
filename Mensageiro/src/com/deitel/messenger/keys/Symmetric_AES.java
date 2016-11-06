@@ -14,44 +14,56 @@ public class Symmetric_AES {
     
     public static final String ALGORITHM = "AES";
     private final static String IV = "AAAAAAAAAAAAAAAA";
-    private final static char[] hexa = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    private final static char[] hexa = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
     private static final HashMap<String, String> MAPA_USUARIOS_CHAVES = new HashMap<String, String>();
     
     //Método que gera uma chave aleatória e coloca no array de chaves
     public static String geraChave(String userName)
     {
-        Random r = new Random();
-        String chaveFinal;
-                
-        //gerar uma chave de 256 bits -> 32 caracteres
-        char[] chave = new char[16];
-        int num;
-
-        for(int i = 0; i < 16; i++)
-        {
-            num = r.nextInt(16);
-            chave[i] = hexa[num];
-        }
-        
-        chaveFinal = String.valueOf(chave);
+        String chaveFinal = Utils.sequenciaAleatoria(16, hexa);
                 
         MAPA_USUARIOS_CHAVES.put(userName, chaveFinal);
         return chaveFinal;
     }
+    
+    public static String geraValorAleatorioHexa()
+    {
+        String VetorInicializacao = Utils.sequenciaAleatoria(16, hexa);
+        return VetorInicializacao;
+    }
 
     //Métodos de encriptação e decriptação com AES - Chave Simétrica
-    public static byte[] ChaveSimetricaEncrypt(String textopuro, String chaveencriptacao) throws Exception {
+    public static byte[] ChaveSimetricaEncrypt(String textopuro, String chaveencriptacao) throws Exception 
+    {
         Cipher encripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
         SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), ALGORITHM);
         encripta.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
         return encripta.doFinal(textopuro.getBytes("UTF-8"));
     }
+    
+    //Método que faz exatamente o que o de cima faz, com a diferença de passar o vetor de inicialização
+    public static byte[] ChaveSimetricaEncrypt(String textopuro, String chaveencriptacao, String Vetor) throws Exception
+    {
+        Cipher encripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+        SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), ALGORITHM);
+        encripta.init(Cipher.ENCRYPT_MODE, key,new IvParameterSpec(Vetor.getBytes("UTF-8")));
+        return encripta.doFinal(textopuro.getBytes("UTF-8"));
+    }
    
-    public static String ChaveSimetricaDecrypt(byte[] textoencriptado, String chaveencriptacao) throws Exception{
-            Cipher decripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
-            SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), ALGORITHM);
-            decripta.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
-            return new String(decripta.doFinal(textoencriptado),"UTF-8");
+    public static String ChaveSimetricaDecrypt(byte[] textoencriptado, String chaveencriptacao) throws Exception
+    {
+        Cipher decripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+        SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), ALGORITHM);
+        decripta.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(IV.getBytes("UTF-8")));
+        return new String(decripta.doFinal(textoencriptado),"UTF-8");
+    }
+    
+    public static String ChaveSimetricaDecrypt(byte[] textoencriptado, String chaveencriptacao, String vetor) throws Exception
+    {
+        Cipher decripta = Cipher.getInstance("AES/CBC/PKCS5Padding", "SunJCE");
+        SecretKeySpec key = new SecretKeySpec(chaveencriptacao.getBytes("UTF-8"), ALGORITHM);
+        decripta.init(Cipher.DECRYPT_MODE, key,new IvParameterSpec(vetor.getBytes("UTF-8")));
+        return new String(decripta.doFinal(textoencriptado),"UTF-8");
     }
     
     //Métodos que manipulam o mapa de chaves e contatos

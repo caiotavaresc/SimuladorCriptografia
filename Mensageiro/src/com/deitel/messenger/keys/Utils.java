@@ -1,7 +1,10 @@
 package com.deitel.messenger.keys;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Random;
 
 /* Biblioteca de métodos estáticos úteis */
 public class Utils {
@@ -27,21 +30,44 @@ public class Utils {
     /* Método que converte array de bytes para string */
     public static String converteArrayDeBytesParaString(byte[] array)
     {
-        /*ByteArrayInputStream bis = new ByteArrayInputStream(array);
-        
-        try
-        {
-            ObjectInputStream ois = new ObjectInputStream(bis);
-            String retorno = (String) ois.readObject();
-            
-            return retorno;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            return null;
-        }*/
         return new String(array);
+    }
+    
+    /* Método que gera uma sequência aleatória de caracteres de um array de CHARs */
+    public static String sequenciaAleatoria(int numElementos, char[] arrayCaracteres)
+    {
+        Random r = new Random();
+        int i;
+        char[] saida = new char[numElementos];
+        
+        for(i=0; i < numElementos; i++)
+            saida[i] = arrayCaracteres[r.nextInt(arrayCaracteres.length)];
+        
+        return String.valueOf(saida);
+    }
+    
+    //Converter [qualquer] objeto em array de bytes
+    public static byte[] converterObjetoEmArrayDeBytes(Object objeto) throws Exception
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        
+        oos.writeObject(objeto);
+        oos.close();
+        
+        return bos.toByteArray();
+    }
+    
+    //Converter [qualquer] array de bytes em um objeto
+    public static Object converterArrayDeBytesEmObjeto(byte[] array) throws Exception
+    {
+        ByteArrayInputStream bis = new ByteArrayInputStream(array);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        
+        Object retorno = ois.readObject();
+        ois.close();
+        
+        return retorno;
     }
     
 }

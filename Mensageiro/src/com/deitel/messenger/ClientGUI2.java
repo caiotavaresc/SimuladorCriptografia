@@ -46,6 +46,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
         Cripto1 = new javax.swing.JRadioButton();
         Cripto2 = new javax.swing.JRadioButton();
         Cripto3 = new javax.swing.JRadioButton();
+        Cripto4 = new javax.swing.JRadioButton();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -78,6 +79,9 @@ public class ClientGUI2 extends javax.swing.JFrame {
         buttonGroup1.add(Cripto3);
         Cripto3.setText("Chave Assimétrica");
 
+        buttonGroup1.add(Cripto4);
+        Cripto4.setText("Acordo de Chaves");
+
         javax.swing.GroupLayout PainelInteriorLayout = new javax.swing.GroupLayout(PainelInterior);
         PainelInterior.setLayout(PainelInteriorLayout);
         PainelInteriorLayout.setHorizontalGroup(
@@ -91,7 +95,9 @@ public class ClientGUI2 extends javax.swing.JFrame {
                         .addComponent(Cripto2)
                         .addGap(18, 18, 18)
                         .addComponent(Cripto3)
-                        .addGap(0, 206, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(Cripto4)
+                        .addGap(0, 75, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(BotaoEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(jScrollPane3)
@@ -109,7 +115,8 @@ public class ClientGUI2 extends javax.swing.JFrame {
                         .addGroup(PainelInteriorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(Cripto1)
                             .addComponent(Cripto2)
-                            .addComponent(Cripto3)))))
+                            .addComponent(Cripto3)
+                            .addComponent(Cripto4)))))
         );
 
         PainelAbas.addTab("Inicie uma conversa", PainelInterior);
@@ -233,11 +240,18 @@ public class ClientGUI2 extends javax.swing.JFrame {
             Symmetric_AES.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
         }
         
-        //Criptorafia de chave assimétrica
+        //Criptografia de chave assimétrica
         if(((JRadioButton) dadosAbaAtiva.get(5)).isSelected())
         {
             //Criptografia de chave assimétrica
             Asymmetric_RSA.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
+        }
+        
+        //Criptografia com Acordo de Chaves
+        if(((JRadioButton) dadosAbaAtiva.get(6)).isSelected())
+        {
+            //Criptografia com Acordo de Chaves
+            KeyExchange.enviarMensagem(Integer.toString(this.userId), AbaAtiva, textoMensagem);
         }
 
         //Limpar a aba de conversa
@@ -316,6 +330,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
     private javax.swing.JRadioButton Cripto1;
     private javax.swing.JRadioButton Cripto2;
     private javax.swing.JRadioButton Cripto3;
+    private javax.swing.JRadioButton Cripto4;
     private javax.swing.JTabbedPane PainelAbas;
     private javax.swing.JPanel PainelInterior;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -415,6 +430,12 @@ public class ClientGUI2 extends javax.swing.JFrame {
     }
     
     //Método redirecionador para envio de mensagens
+    public static void sendMessage(String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT)
+    {
+        ClientGUI2.sendMessage(Integer.toString(ClientGUI2.janelaAtual.getUserId()), NICK_TO, CRYPTO_TYPE, MSG_TYPE, MSG_TEXT);
+    }
+    
+    //Método redirecionador para envio de mensagens
     public static void sendMessage(String ID_FROM, String NICK_TO, String CRYPTO_TYPE, String MSG_TYPE, String MSG_TEXT)
     {
         janelaAtual.messageManager.sendMessage(ID_FROM, NICK_TO, CRYPTO_TYPE, MSG_TYPE, MSG_TEXT);
@@ -438,6 +459,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
         JRadioButton ad_Cripto1 = new JRadioButton();
         JRadioButton ad_Cripto2 = new JRadioButton();
         JRadioButton ad_Cripto3 = new JRadioButton();
+        JRadioButton ad_Cripto4 = new JRadioButton();
         ButtonGroup ad_ButtonGroup = new ButtonGroup();
 
         ad_CaixaTexto.setAutoscrolls(false);
@@ -464,9 +486,47 @@ public class ClientGUI2 extends javax.swing.JFrame {
 
         ad_ButtonGroup.add(ad_Cripto3);
         ad_Cripto3.setText("Chave Assimétrica");
+        
+        ad_ButtonGroup.add(ad_Cripto4);
+        ad_Cripto4.setText("Acordo de Chaves");
 
         javax.swing.GroupLayout adicaoLayout = new javax.swing.GroupLayout(adicao);
         adicao.setLayout(adicaoLayout);
+        
+        /*adicaoLayout.setHorizontalGroup(
+            adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(adicaoLayout.createSequentialGroup()
+                .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(PainelInteriorLayout.createSequentialGroup()
+                        .addComponent(Cripto1)
+                        .addGap(18, 18, 18)
+                        .addComponent(Cripto2)
+                        .addGap(18, 18, 18)
+                        .addComponent(Cripto3)
+                        .addGap(18, 18, 18)
+                        .addComponent(Cripto4)
+                        .addGap(0, 75, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(BotaoEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(jScrollPane3)
+        );
+        PainelInteriorLayout.setVerticalGroup(
+            PainelInteriorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PainelInteriorLayout.createSequentialGroup()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(PainelInteriorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(BotaoEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(PainelInteriorLayout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(PainelInteriorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(Cripto1)
+                            .addComponent(Cripto2)
+                            .addComponent(Cripto3)
+                            .addComponent(Cripto4)))))
+        );*/
 
         adicaoLayout.setHorizontalGroup(
         adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -479,7 +539,9 @@ public class ClientGUI2 extends javax.swing.JFrame {
                         .addComponent(ad_Cripto2)
                         .addGap(18, 18, 18)
                         .addComponent(ad_Cripto3)
-                        .addGap(0, 206, Short.MAX_VALUE)))
+                        .addGap(18, 18, 18)
+                        .addComponent(ad_Cripto4)
+                        .addGap(0, 75, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ad_Enviar, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(ad_ScrollConversa)
@@ -498,7 +560,8 @@ public class ClientGUI2 extends javax.swing.JFrame {
                         .addGroup(adicaoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(ad_Cripto1)
                             .addComponent(ad_Cripto2)
-                            .addComponent(ad_Cripto3)))))
+                            .addComponent(ad_Cripto3)
+                            .addComponent(ad_Cripto4)))))
         );
 
         List<Component> listaDados = new ArrayList<Component>();
@@ -508,6 +571,7 @@ public class ClientGUI2 extends javax.swing.JFrame {
         listaDados.add(ad_Cripto1);
         listaDados.add(ad_Cripto2);
         listaDados.add(ad_Cripto3);
+        listaDados.add(ad_Cripto4);
         
         PainelAbas.add(textoAba, adicao);
         mapaPaineis.put(textoAba, listaDados);

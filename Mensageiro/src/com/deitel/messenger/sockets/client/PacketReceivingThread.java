@@ -51,7 +51,10 @@ public class PacketReceivingThread extends Thread
    
    // listen for messages from multicast group 
    public void run() 
-   {          
+   {
+       //Quando essa Thread startar, um tratador de mensagens de autenticação startará também
+       new TratadorMensagensAutenticacao(messageListener).start();
+       
       // listen for messages until stopped
       while ( keepListening ) {
 
@@ -85,6 +88,8 @@ public class PacketReceivingThread extends Thread
 
          // ensure non-null message
          if ( message != null ) {
+             
+             System.out.println(message);
              
             // trim extra whitespace from end of message
             message = message.trim();
@@ -142,18 +147,110 @@ public class PacketReceivingThread extends Thread
    }
 }
 
+class TratadorMensagensAutenticacao extends Thread implements SocketMessengerConstants
+{
+   // MessageListener to whom messages should be delivered
+   private MessageListener messageListener;
+   
+   // Socket que escuta as respostas
+   private DatagramSocket responseSocket;
 
-/**************************************************************************
- * (C) Copyright 2002 by Deitel & Associates, Inc. and Prentice Hall.     *
- * All Rights Reserved.                                                   *
- *                                                                        *
- * DISCLAIMER: The authors and publisher of this book have used their     *
- * best efforts in preparing the book. These efforts include the          *
- * development, research, and testing of the theories and programs        *
- * to determine their effectiveness. The authors and publisher make       *
- * no warranty of any kind, expressed or implied, with regard to these    *
- * programs or to the documentation contained in these books. The authors *
- * and publisher shall not be liable in any event for incidental or       *
- * consequential damages in connection with, or arising out of, the       *
- * furnishing, performance, or use of these programs.                     *
- *************************************************************************/
+   // flag for terminating PacketReceivingThread
+   private boolean keepListening = true;
+   
+   // PacketReceivingThread constructor
+   public TratadorMensagensAutenticacao( MessageListener listener ) 
+   {
+      // invoke superclass constructor to name Thread
+      super( "TratadorMensagensAutenticacao" );
+      
+      // set MessageListener
+      messageListener = listener;
+      
+      // connect MulticastSocket to multicast address and port
+      try {
+         responseSocket = 
+            new DatagramSocket( CLIENT_AUTH_LISTENING_PORT );
+         
+         // set 2 second timeout when waiting for new packets
+         responseSocket.setSoTimeout( 2000 );
+      }
+      
+      // handle exception connecting to multicast address
+      catch ( IOException ioException ) {
+         ioException.printStackTrace();
+      }
+      
+   } // end PacketReceivingThread constructor
+   
+   // listen for messages from multicast group 
+   public void run() 
+   {          
+      // listen for messages until stopped
+      while ( keepListening ) {
+
+         // create buffer for incoming message
+         byte[] buffer = new byte[ MESSAGE_SIZE ];
+         
+         // create DatagramPacket for incoming message
+         DatagramPacket packet = new DatagramPacket( buffer, 
+            MESSAGE_SIZE );
+
+         // receive new DatagramPacket (blocking call)
+         try {            
+            responseSocket.receive( packet );
+         }
+
+         // handle exception when receive times out
+         catch ( InterruptedIOException interruptedIOException ) {
+            
+            // continue to next iteration to keep listening
+            continue;
+         }
+         
+         // handle exception reading packet from multicast group
+         catch ( IOException ioException ) {
+            ioException.printStackTrace();
+            break;
+         }
+
+         // put message data in a String
+         String message = new String( packet.getData() );
+
+         // ensure non-null message
+         if ( message != null ) {
+             
+             System.out.println(message);
+             
+            // trim extra whitespace from end of message
+            message = message.trim();
+
+            // tokenize message to retrieve user name
+            // and message body
+            StringTokenizer tokenizer = new StringTokenizer( message, MESSAGE_SEPARATOR );
+
+            String tipoMensagem = tokenizer.nextToken();
+
+            //Verificar se o pacote recebido é uma resposta contendo as chaves públicas dos contatos
+            if(tipoMensagem.equals("ASYM_PUBLIC_REQ"))
+            {
+                //Prosseguir com a resposta
+                messageListener.asymPublicReqReceived(tokenizer.nextToken() + MESSAGE_SEPARATOR + tokenizer.nextToken(), responseSocket.getInetAddress());
+            }
+
+         } // end if
+
+      } // end while
+
+      // Close ResponseSocket
+         responseSocket.close(); 
+      
+   } // end method run
+   
+   // stop listening for new messages
+   public void stopListening() 
+   {
+      // terminate Thread
+      keepListening = false;
+   }
+}

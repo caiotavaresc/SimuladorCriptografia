@@ -63,7 +63,7 @@ public class MensagemDAO {
             
             while(rs.next())
             {
-                Mensagem msg = new Mensagem(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getString(6), rs.getDate(7));
+                Mensagem msg = new Mensagem(rs.getInt(1), rs.getInt(2), rs.getInt(3), rs.getInt(4), rs.getInt(5), rs.getString(7), rs.getDate(6));
                 msg.setNICK_FROM(rs.getString(8));
                 msg.setDataHoraFormatado(rs.getString(9));
                 lista.add(msg);

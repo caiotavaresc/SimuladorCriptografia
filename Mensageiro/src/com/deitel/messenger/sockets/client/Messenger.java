@@ -44,8 +44,19 @@ class MyMessageListener implements MessageListener {
        //Se a mensagem for um acordo de chaves, chamar a classe Symmetric_AES pra tratar
        if(MSG_TYPE.equals("2"))
        {
-            Symmetric_AES.chaveSimetricaRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
-            return;
+           switch(iCRYPTO_TYPE)
+           {
+               case 2:
+                   Symmetric_AES.chaveSimetricaRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
+                   break;
+                    
+               case 4:
+                   KeyExchange.acordoChavesRecebido(NICK_FROM, MSG_TEXT, MSG_DTTM);
+                   break;
+            
+           }
+           
+           return;
        }
                
        //Senão, vai depender do tipo de mensagem
@@ -64,6 +75,7 @@ class MyMessageListener implements MessageListener {
                break;
                
            case 4:
+               KeyExchange.mensagemRecebida(NICK_FROM, MSG_TEXT, MSG_DTTM);
                break;
        }
 
@@ -91,7 +103,6 @@ class MyMessageListener implements MessageListener {
    //Mensagem contendo todas as chaves públicas de todos os contatos
    public void asymPublicReqReceived(String parContatoChave, InetAddress ip_orig)
    {
-        System.out.println(parContatoChave);
         String[] par;
         byte[] key;
        
@@ -101,6 +112,7 @@ class MyMessageListener implements MessageListener {
         key = Utils.converteStringParaArrayDeBytes(par[1]);
 
         Asymmetric_RSA.inserirChaveContato(par[0], key);
+        System.out.println("Inseriu "+par[0]);
    }
 
 }

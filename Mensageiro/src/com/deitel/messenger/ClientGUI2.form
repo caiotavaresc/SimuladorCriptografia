@@ -75,7 +75,9 @@
                               <Component id="Cripto2" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="Cripto3" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="206" max="32767" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="Cripto4" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="75" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -98,6 +100,7 @@
                                   <Component id="Cripto1" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="Cripto2" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="Cripto3" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="Cripto4" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -169,6 +172,14 @@
                   <ComponentRef name="buttonGroup1"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Chave Assim&#xe9;trica"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JRadioButton" name="Cripto4">
+              <Properties>
+                <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+                  <ComponentRef name="buttonGroup1"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Acordo de Chaves"/>
               </Properties>
             </Component>
           </SubComponents>
